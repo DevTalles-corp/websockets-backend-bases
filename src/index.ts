@@ -15,10 +15,13 @@ const server = Bun.serve({
   websocket: {
     message(ws, message: string) {
       // console.log({ ws, message });
-      ws.send(message.toUpperCase());
+      // ws.send(message.toUpperCase());
+      ws.publish('general-chat', message);
+      ws.send(message);
     }, // a message is received
     open(ws) {
       console.log('Cliente conectado');
+      ws.subscribe('general-chat');
     }, // a socket is opened
     close(ws, code, message) {
       console.log('Cliente desconectado');

@@ -77,6 +77,7 @@
         if (!messageInput.value && messageInput.value.length === 0) return;
 
         socket.send(messageInput.value);
+        // showMessage(messageInput.value);
         messageInput.value = '';
       });
 
