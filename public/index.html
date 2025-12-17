@@ -4,9 +4,63 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>WebSockets Cliente</title>
+
+    <link rel="icon" href="./favicon.ico" />
   </head>
   <body>
-    <h1>Hola Mundo desde mi servidor</h1>
-    <p>Hola de nuevo</p>
+    <h1>Status</h1>
+    <p id="status">Connecting</p>
+
+    <button id="btn-disconnect">Disconnect</button>
+    <button id="btn-connect">Connect</button>
+
+    <form id="message-form" style="display: none">
+      <h1>Messages</h1>
+      <input type="text" id="input-message" placeholder="Message" />
+      <button id="send">Send</button>
+    </form>
+
+    <ul id="messages"></ul>
+
+    <script>
+      let socket = new WebSocket('ws://localhost:3100');
+
+      const status = document.querySelector('#status');
+      const messageForm = document.querySelector('#message-form');
+      const messageInput = document.querySelector('#input-message');
+      const messagesContainer = document.querySelector('#messages');
+
+      const btnDisconnect = document.querySelector('#btn-disconnect');
+      const btnConnect = document.querySelector('#btn-connect');
+
+      socket.onopen = () => {
+        console.log('WebSocket conectado');
+        messageForm.style.display = 'block';
+        status.textContent = 'Conectado';
+      };
+
+      socket.onclose = () => {
+        console.log('WebSocket desconectado');
+        messageForm.style.display = 'none';
+        status.textContent = 'Desconectado';
+      };
+
+      socket.onerror = (event) => {
+        console.log({ error: event });
+      };
+
+      btnDisconnect.addEventListener('click', () => {
+        if (socket.readyState !== WebSocket.OPEN) return;
+        socket.close();
+        status.textContent = 'Desconectado';
+      });
+
+      btnConnect.addEventListener('click', () => {
+        if (socket.readyState === WebSocket.OPEN) return;
+        socket = new WebSocket('ws://localhost:3100');
+        status.textContent = 'Conectado';
+        messageForm.style.display = 'block';
+      });
+    </script>
   </body>
 </html>
