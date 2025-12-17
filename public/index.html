@@ -23,6 +23,15 @@
     <ul id="messages"></ul>
 
     <script>
+      // Crear cookies
+      const session = {
+        id: 1,
+        sessionId: 'Abc123',
+      };
+      const jwtToken = 'MiToken-JWT';
+      document.cookie = `session=${JSON.stringify(session)}`;
+      document.cookie = `X-Token=${jwtToken}`;
+
       let socket;
 
       const status = document.querySelector('#status');
@@ -34,7 +43,11 @@
       const btnConnect = document.querySelector('#btn-connect');
 
       const createWebSocket = () => {
-        const socket = new WebSocket('ws://localhost:3100');
+        const channelId = 'mi-canal-personalizado';
+
+        const socket = new WebSocket(
+          `ws://localhost:3100?channelId=${channelId}`
+        );
 
         socket.onopen = () => {
           console.log('WebSocket conectado');
