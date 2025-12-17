@@ -23,7 +23,7 @@
     <ul id="messages"></ul>
 
     <script>
-      let socket = new WebSocket('ws://localhost:3100');
+      let socket;
 
       const status = document.querySelector('#status');
       const messageForm = document.querySelector('#message-form');
@@ -33,34 +33,59 @@
       const btnDisconnect = document.querySelector('#btn-disconnect');
       const btnConnect = document.querySelector('#btn-connect');
 
-      socket.onopen = () => {
-        console.log('WebSocket conectado');
-        messageForm.style.display = 'block';
-        status.textContent = 'Conectado';
+      const createWebSocket = () => {
+        const socket = new WebSocket('ws://localhost:3100');
+
+        socket.onopen = () => {
+          console.log('WebSocket conectado');
+          messageForm.style.display = 'block';
+          status.textContent = 'Conectado';
+        };
+
+        socket.onclose = () => {
+          console.log('WebSocket desconectado');
+          messageForm.style.display = 'none';
+          status.textContent = 'Desconectado';
+        };
+
+        socket.onerror = (event) => {
+          console.log({ error: event });
+        };
+
+        socket.onmessage = (event) => {
+          // console.log(event.data);
+          showMessage(event.data);
+        };
+
+        return socket;
       };
 
-      socket.onclose = () => {
-        console.log('WebSocket desconectado');
-        messageForm.style.display = 'none';
-        status.textContent = 'Desconectado';
-      };
-
-      socket.onerror = (event) => {
-        console.log({ error: event });
-      };
+      socket = createWebSocket();
 
       btnDisconnect.addEventListener('click', () => {
         if (socket.readyState !== WebSocket.OPEN) return;
         socket.close();
-        status.textContent = 'Desconectado';
       });
 
       btnConnect.addEventListener('click', () => {
         if (socket.readyState === WebSocket.OPEN) return;
-        socket = new WebSocket('ws://localhost:3100');
-        status.textContent = 'Conectado';
-        messageForm.style.display = 'block';
+        socket = createWebSocket();
       });
+
+      messageForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+        if (!messageInput.value && messageInput.value.length === 0) return;
+
+        socket.send(messageInput.value);
+        messageInput.value = '';
+      });
+
+      const showMessage = (message) => {
+        const li = document.createElement('li');
+        li.textContent = message;
+
+        messagesContainer.appendChild(li);
+      };
     </script>
   </body>
 </html>
